@@ -1,0 +1,699 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pascal Chaumette — Digital Media Artist · 3D Generalist · Unity</title>
+<meta name="description" content="Pascal Chaumette — Digital Media Artist, 3D Generalist & Unity Game Developer. AR/VR games, interactive installations, HD product renders for Disney, The Armoured Pug, Neo-Pangea & RHODDY.">
+<meta name="color-scheme" content="dark">
+<link rel="icon" href='data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><path d="M16 3 29 10v12L16 29 3 22V10z" fill="none" stroke="%23ffb489" stroke-width="2.5"/><path d="M16 3v13m0 0L3 10m13 6 13-6M16 16v13" stroke="%23ffb489" stroke-width="2.5"/></svg>'>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@400;500&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<style>
+:root{--ink:#f4efe6;--dim:#a8b4bd;--line:rgba(244,239,230,.15);--panel:rgba(9,13,18,.9);--accent:#ffb489;--bar-h:6vh;--e:cubic-bezier(.22,.9,.28,1)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+body{margin:0;background:#0a0e13;color:var(--ink);font-family:'Manrope',system-ui,sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased;cursor:crosshair}
+::selection{background:var(--accent);color:#101418}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+::-webkit-scrollbar{width:9px}::-webkit-scrollbar-track{background:#0a0e13}::-webkit-scrollbar-thumb{background:#27313d;border-radius:5px}
+.mono{font-family:'IBM Plex Mono',monospace}.display{font-family:'Bricolage Grotesque','Manrope',sans-serif}
+
+#scene{position:fixed;inset:0;width:100%;height:100%;z-index:0;display:block}
+body.no3d #scene{display:none}
+body.no3d{background:linear-gradient(180deg,#243b60 0%,#c97a5e 55%,#f2a878 72%,#2b3560 100%)}
+.bar{position:fixed;left:0;right:0;height:var(--bar-h);background:#04060a;z-index:40;pointer-events:none}
+.bar-top{top:0;transform-origin:top;transform:scaleY(0)}.bar-bot{bottom:0;transform-origin:bottom;transform:scaleY(0)}
+
+header.hud{position:fixed;top:0;left:0;right:0;z-index:50;display:flex;align-items:center;justify-content:space-between;padding:16px 26px;text-shadow:0 1px 14px rgba(5,8,12,.7)}
+.brand{display:flex;gap:10px;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.22em}
+.brand svg{width:19px;height:19px;stroke:var(--accent);fill:none;stroke-width:2.4}
+.nav{display:flex;gap:26px;align-items:center}
+.nav a{color:var(--ink);text-decoration:none;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;position:relative;padding:4px 0}
+.nav a::after{content:"";position:absolute;left:0;bottom:0;height:1px;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .35s var(--e)}
+.nav a:hover::after{transform:scaleX(1)}
+.nav a.chip{border:1px solid var(--line);padding:7px 14px;border-radius:2px}
+.nav a.chip:hover{border-color:var(--accent);color:var(--accent)}
+
+.hud-b{position:fixed;bottom:0;left:0;right:0;z-index:45;display:flex;justify-content:space-between;align-items:flex-end;padding:16px 26px;pointer-events:none;text-shadow:0 1px 12px rgba(5,8,12,.75)}
+.phase{display:flex;flex-direction:column;gap:7px}
+.phase .lbl{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.3em;color:var(--accent);transition:color .4s}
+.track{width:min(280px,34vw);height:2px;background:rgba(255,255,255,.22);position:relative}
+.track i{position:absolute;inset:0 auto 0 0;width:0%;background:var(--accent)}
+.sunread{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;color:var(--dim)}
+.stats{text-align:right;display:flex;flex-direction:column;gap:5px}
+.stats b{font-weight:500;font-size:13px;letter-spacing:.12em}.stats span{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--dim)}
+
+#toast{position:fixed;right:26px;bottom:calc(var(--bar-h) + 54px);z-index:60;background:var(--panel);border:1px solid var(--line);color:var(--accent);font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.18em;padding:11px 16px;transform:translateY(14px);opacity:0;transition:.35s var(--e);pointer-events:none}
+#toast.on{transform:none;opacity:1}
+
+main{position:relative;z-index:10}
+.wrap{max-width:1240px;margin:0 auto;padding:0 clamp(20px,5vw,64px)}
+.chap{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.34em;color:var(--accent);display:flex;align-items:center;gap:14px;text-shadow:0 1px 14px rgba(5,8,12,.7)}
+.chap::before{content:"";width:36px;height:1px;background:currentColor}
+.h-giant{font-size:clamp(3.2rem,10.5vw,9.2rem);line-height:.9;letter-spacing:-.02em;font-weight:800;margin:0;text-shadow:0 4px 46px rgba(6,10,16,.5)}
+.h-xl{font-size:clamp(2.3rem,5.2vw,4.4rem);line-height:.98;letter-spacing:-.015em;font-weight:800;margin:0 0 .5em;text-shadow:0 4px 40px rgba(6,10,16,.5)}
+.lede{font-size:clamp(1.02rem,1.35vw,1.18rem);line-height:1.65;color:#e9e2d5;max-width:60ch;text-shadow:0 2px 24px rgba(6,10,16,.55)}
+.panel{background:var(--panel);border:1px solid var(--line);padding:clamp(20px,2.6vw,34px);position:relative;border-radius:3px}
+.panel::before,.panel::after{content:"+";font-family:'IBM Plex Mono',monospace;color:var(--accent);opacity:.8;position:absolute;font-size:12px;line-height:1}
+.panel::before{top:-7px;left:-5px}.panel::after{bottom:-7px;right:-5px}
+
+[data-r]{opacity:0;transform:translateY(26px);transition:opacity .9s var(--e),transform .9s var(--e);transition-delay:calc(var(--i,0)*100ms)}
+[data-r].in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){[data-r]{transform:none;transition-duration:.4s}}
+
+.hero{min-height:100vh;min-height:100svh;display:flex;align-items:flex-end;position:relative;padding-bottom:9vh}
+.hero .kicker{font-family:'IBM Plex Mono',monospace;font-size:clamp(10px,1.2vw,13px);letter-spacing:.4em;color:var(--accent);margin-bottom:18px;text-shadow:0 2px 16px rgba(5,8,12,.7)}
+.hero h1 .l2{display:block}
+.outline{-webkit-text-stroke:1.6px rgba(244,239,230,.9);color:transparent}
+@supports not (-webkit-text-stroke:1px #fff){.outline{color:var(--ink)}}
+.hero-side{position:absolute;right:clamp(18px,4vw,54px);top:50%;transform:translateY(-50%);writing-mode:vertical-rl;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.42em;color:var(--dim)}
+.hero-meta{position:absolute;right:clamp(18px,4vw,54px);bottom:9vh;display:flex;flex-direction:column;gap:8px;text-align:right}
+.seedchip{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;border:1px solid var(--line);padding:9px 13px;background:rgba(9,13,18,.55)}
+.seedchip b{color:var(--accent);font-weight:500}
+.cue{position:absolute;left:50%;bottom:26px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:10px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.34em;color:var(--dim)}
+.cue .line{width:1px;height:44px;background:linear-gradient(var(--accent),transparent);animation:drip 1.8s var(--e) infinite}
+@keyframes drip{0%{transform:scaleY(0);transform-origin:top}55%{transform:scaleY(1);transform-origin:top}56%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.plant-hint{position:absolute;right:clamp(20px,4vw,54px);bottom:38px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--dim)}
+
+.about{padding:26vh 0 22vh}
+.stats-row{display:flex;flex-wrap:wrap;border:1px solid var(--line);margin-top:24px}
+.stat{padding:13px 18px;font-family:'IBM Plex Mono',monospace;border-right:1px solid var(--line)}
+.stat:last-child{border-right:0}.stat b{display:block;font-size:clamp(1.1rem,1.7vw,1.55rem);color:var(--accent);font-weight:500;letter-spacing:.04em}
+.stat span{font-size:9px;letter-spacing:.22em;color:var(--dim)}
+
+.reelwrap{padding:16vh 0 8vh}
+.grid-reel{display:grid;gap:14px;margin-top:30px}
+@media (min-width:760px){.grid-reel{grid-template-columns:repeat(4,1fr)}}
+.reel-card{position:relative;display:flex;flex-direction:column;background:#0a0e13;border:1px solid var(--line);border-radius:4px;overflow:hidden;text-decoration:none;color:var(--ink);transition:transform .5s var(--e),border-color .4s}
+.reel-card:hover{transform:translateY(-6px);border-color:var(--accent)}
+.r-3x2{grid-column:span 2;grid-row:span 3}.r-3x2 .thumb{aspect-ratio:auto;flex:1;min-height:0}
+.reel-card:not(.r-3x2) .thumb{aspect-ratio:16/9}
+.thumb{position:relative;width:100%;background:#141b22 center/cover no-repeat;transition:filter .5s var(--e)}
+.reel-card:hover .thumb{filter:brightness(1.1) saturate(1.05)}
+.thumb::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(6,9,13,.8),rgba(6,9,13,0) 55%);z-index:1}
+.play{position:absolute;left:50%;top:42%;transform:translate(-50%,-50%) scale(.7);width:52px;height:52px;border-radius:50%;background:rgba(10,14,18,.6);border:1.5px solid var(--accent);color:var(--accent);display:flex;align-items:center;justify-content:center;font-size:17px;opacity:.15;transition:.4s var(--e);z-index:3}
+.reel-card:hover .play{opacity:1;transform:translate(-50%,-50%) scale(1)}
+.tag-top{position:absolute;top:12px;left:12px;background:rgba(9,13,18,.72);border:1px solid var(--line);z-index:4}
+.reel-card h3{padding:14px 16px 0;margin:0;font-family:'Bricolage Grotesque',sans-serif;font-weight:700;font-size:clamp(1.05rem,1.6vw,1.5rem);line-height:1.1}
+.reel-card p.wmeta{padding:8px 16px 16px;margin:0}
+.thumb .vid{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .35s;z-index:2;border:0;display:block;background:#000}
+.reel-all{display:inline-block;margin-top:26px;font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.2em;color:var(--accent);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:4px;transition:border-color .3s}
+.reel-all:hover{border-color:var(--accent)}
+
+.stack{padding:18vh 0 6vh}.sblock{margin-top:clamp(18px,2.5vw,28px)}
+.sblock h3{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.3em;color:var(--accent);margin:0 0 16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
+.chips{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px}
+.chips li{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.12em;border:1px solid var(--line);padding:7px 11px;color:#e6dfd2;border-radius:3px;transition:.3s var(--e)}
+.chips li:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-2px)}
+.stack-note{margin-top:28px;font-size:.9rem;color:var(--dim);max-width:56ch;line-height:1.7}
+
+.process-v .proc-row{display:grid;grid-template-columns:40px 1fr;gap:clamp(14px,3vw,38px);padding-bottom:clamp(30px,5vh,56px)}
+.proc-row:last-child{padding-bottom:0}
+.node{width:12px;height:12px;margin-top:14px;background:#0a0e13;border:1.5px solid var(--dim);transform:rotate(45deg);justify-self:center;transition:.5s var(--e)}
+.proc-row.passed .node{background:var(--accent);border-color:var(--accent);box-shadow:0 0 22px var(--accent)}
+.proc-box{position:relative;background:var(--panel);border:1px solid var(--line);padding:clamp(18px,2.4vw,30px);max-width:660px;border-radius:3px}
+.snum{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(2rem,4vw,3.2rem);line-height:1;color:transparent;-webkit-text-stroke:1.2px rgba(244,239,230,.5)}
+.proc-box.passed .snum{color:var(--accent);-webkit-text-stroke-color:transparent}
+@supports not (-webkit-text-stroke:1px #fff){.snum{color:rgba(244,239,230,.7)}}
+.proc-box h3{font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(1.3rem,2vw,1.7rem);margin:6px 0 8px}
+.proc-box p{margin:0;color:#d9d2c4;line-height:1.65;font-size:.97rem;text-shadow:0 2px 18px rgba(6,10,16,.6)}
+
+.contact{min-height:92vh;display:flex;flex-direction:column;justify-content:center;padding-bottom:4vh}
+.email{display:inline-block;font-family:'Bricolage Grotesque',sans-serif;font-weight:800;font-size:clamp(1.5rem,5vw,4.2rem);letter-spacing:-.02em;color:var(--ink);text-decoration:none;margin:.35em 0 .2em;background-image:linear-gradient(var(--accent),var(--accent));background-repeat:no-repeat;background-position:left bottom;background-size:0% 3px;transition:background-size .55s var(--e)}
+.email:hover{background-size:100% 4px;color:#fff}
+.socials{display:flex;gap:26px;flex-wrap:wrap;margin:24px 0 32px}
+.socials a{font-family:'IBM Plex Mono',monospace;font-size:11.5px;letter-spacing:.2em;color:var(--dim);text-decoration:none;border-bottom:1px solid transparent;padding-bottom:4px;transition:.3s}
+.socials a:hover{color:var(--accent);border-color:var(--accent)}
+.statusrow{display:flex;gap:16px;flex-wrap:wrap;align-items:center;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.2em;color:var(--dim)}
+.pill{display:inline-flex;align-items:center;gap:9px;border:1px solid var(--line);padding:9px 14px}
+.dot{width:7px;height:7px;background:#7de08a;border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(125,224,138,.6)}55%{box-shadow:0 0 0 7px rgba(125,224,138,0)}}
+.btn-top{margin-top:34px;font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.26em;color:var(--ink);background:none;border:1px solid var(--line);padding:14px 22px;cursor:pointer;transition:.35s var(--e)}
+.btn-top:hover{border-color:var(--accent);color:var(--accent);transform:translateY(-3px)}
+footer.foot{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;border-top:1px solid var(--line);margin-top:7vh;padding:20px 0 44px;font-family:'IBM Plex Mono',monospace;font-size:9.5px;letter-spacing:.2em;color:#6f7d8a}
+
+#fallback{position:fixed;top:82px;left:50%;transform:translateX(-50%);z-index:70;width:min(560px,calc(100vw - 32px));pointer-events:none}
+#fallback[hidden]{display:none}.fb-card{pointer-events:auto;text-align:left}
+.fb-kicker{font-size:10px;letter-spacing:.3em;color:var(--accent)}
+.fb-actions{display:flex;gap:14px;align-items:center;margin-top:20px;flex-wrap:wrap}
+
+@media (max-width:759px){.reel-card,.r-3x2{grid-column:auto!important;grid-row:auto!important}.r-3x2 .thumb{aspect-ratio:16/9;flex:none}}
+@media (max-width:760px){.nav a:not(.chip){display:none}.hero-side,.plant-hint{display:none}.proc-row{grid-template-columns:34px 1fr}.node{position:static;margin:14px 0 0;justify-self:start}.hud-b .stats span:last-child{display:none}}
+</style>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+
+<script>
+/* ============ BOOT / WATCHDOG — runs regardless of the 3D module ============ */
+(function(){
+  var B = window.__boot = { ready:false, error:null };
+  function record(m){ if(B.error||!m) return; B.error=String(m).slice(0,320); }
+  window.addEventListener('error',function(ev){
+    if(!B.ready && !B.error){
+      var m = ev.message || (ev.target&&ev.target.src?('failed to load '+ev.target.src):'');
+      record(m||'script error');
+    }
+  },true);
+  window.addEventListener('unhandledrejection',function(ev){
+    if(!B.ready && !B.error) record((ev.reason&&(ev.reason.message))||String(ev.reason));
+  });
+
+  var fbEl=document.getElementById('fallback'),
+      fbTitle=document.getElementById('fbTitle'),
+      fbBody=document.getElementById('fbBody');
+  function show(msg,kind){
+    if(!fbEl) return; document.body.classList.add('no3d');
+    if(kind==='wait'){
+      fbTitle.textContent='Loading the 3D island\u2026';
+      fbBody.innerHTML='Your connection seems slow \u2014 give it a few seconds. Everything below is fully readable in the meantime.';
+    }else{
+      fbTitle.textContent='The 3D island couldn\u2019t start.';
+      fbBody.innerHTML=(msg?('Reason: <span class="mono" style="color:var(--accent)">'+String(msg).replace(/</g,'&lt;')+'</span><br>'):'')+
+        'This portfolio renders its background live in WebGL. An ad\u2011blocker, an offline state, a browser without import\u2011map/WebGL support, or a blocked CDN may be the cause. You can still read and scroll everything below.';
+    }
+    fbEl.hidden=false;
+  }
+  function hide(){ if(fbEl) fbEl.hidden=true; document.body.classList.remove('no3d'); }
+  window.__showFallback=show; window.__hideFallback=hide;
+  var retry=document.getElementById('fbRetry'); if(retry) retry.addEventListener('click',function(){location.reload();});
+
+  setTimeout(function(){ if(!B.ready && !B.error){ show(null,'wait'); } },14000);
+  setTimeout(function(){ if(!B.ready){ show(B.error||'Could not reach the 3D engine CDN.','err'); } },30000);
+
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.18});
+  document.querySelectorAll('[data-r]').forEach(function(el){io.observe(el);});
+
+  var bt=document.getElementById('backTop'); if(bt) bt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+  setInterval(function(){try{document.getElementById('clock').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());}catch(e){document.getElementById('clock').textContent=new Date().toTimeString().slice(0,8);}},1000);
+
+  var canHover=matchMedia('(hover:hover) and (pointer:fine)').matches;
+  document.querySelectorAll('.reel-card').forEach(function(card){
+    var id=card.getAttribute('data-yt'), thumb=card.querySelector('.thumb'); if(!id||!thumb)return;
+    thumb.style.backgroundImage='url(https://i.ytimg.com/vi/'+id+'/hqdefault.jpg)';
+    if(canHover){
+      card.addEventListener('pointerenter',function(){ var f=card.querySelector('.vid');
+        if(!f){ f=document.createElement('iframe'); f.className='vid';
+          f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&mute=1&controls=0&rel=0&playsinline=1';
+          f.setAttribute('allow','autoplay; encrypted-media'); thumb.appendChild(f); }
+        requestAnimationFrame(function(){ if(f) f.style.opacity=1; });
+      });
+      card.addEventListener('pointerleave',function(){ var f=card.querySelector('.vid'); if(f) f.remove(); });
+    }
+  });
+})();
+</script>
+</head>
+<body>
+
+<a class="skip" href="#main" style="position:absolute;left:-999px;top:8px;z-index:200;background:var(--accent);color:#101418;padding:.5rem 1rem;font-size:13px">Skip to content</a>
+<canvas id="scene" aria-hidden="true"></canvas>
+<div class="bar bar-top" id="barTop"></div>
+<div class="bar bar-bot" id="barBot"></div>
+
+<header class="hud">
+  <div class="brand"><svg viewBox="0 0 32 32"><path d="M16 3 29 10v12L16 29 3 22V10z M16 3v13m0 0L3 10m13 6 13-6M16 16v13"/></svg>PASCAL&nbsp;CHAUMETTE</div>
+  <nav class="nav" aria-label="Primary">
+    <a href="#about">ABOUT</a><a href="#reel">REEL</a><a href="#stack">STACK</a><a href="#process">PROCESS</a><a href="#contact" class="chip">CONTACT</a>
+  </nav>
+</header>
+
+<div class="hud-b">
+  <div class="phase">
+    <span class="lbl" id="phaseLbl">FIRST LIGHT</span>
+    <div class="track"><i id="progFill"></i></div>
+    <span class="sunread" id="sunRead">SUN +04.0° · AZ 102°</span>
+  </div>
+  <div class="stats">
+    <b class="mono" id="voxCount">0 VOXELS PLACED</b><span id="fpsEl">— FPS</span>
+    <span>[R] RESEED ISLAND · CLICK TERRAIN TO PLANT A PINE</span>
+  </div>
+</div>
+<div id="toast" role="status"></div>
+
+<main id="main">
+  <section class="hero wrap" aria-label="Introduction">
+    <p class="kicker mono" data-r>DIGITAL MEDIA ARTIST · 3D GENERALIST · UNITY DEVELOPER</p>
+    <h1 class="display h-giant" data-r style="--i:1">PASCAL<br><span class="l2 outline">CHAUMETTE</span></h1>
+    <div class="hero-side mono">PORTFOLIO · VOL. 04 — THE ISLAND EDITION</div>
+    <div class="hero-meta" data-r style="--i:2">
+      <div class="seedchip">ISLAND SEED <b id="seedChip">0x······</b></div>
+      <div class="mono" style="font-size:10px;letter-spacing:.2em;color:var(--dim)">RE-SEEDED ON EVERY VISIT</div>
+    </div>
+    <div class="cue mono"><span class="line"></span>SCROLL — THE WORLD BUILDS ITSELF</div>
+    <div class="plant-hint">▲ THIS LAND IS PROCEDURAL. NO TWO LOADS ARE ALIKE.</div>
+  </section>
+
+  <section id="about" class="about wrap">
+    <p class="chap mono" data-r>CH.02 — THE MORNING BUILD</p>
+    <div class="panel" data-r style="--i:1;max-width:840px;margin-top:3vh">
+      <h2 class="display h-xl">Creativity, shipped on schedule.</h2>
+      <p class="lede">I'm a Digital Media Artist and 3D Generalist working across AR/VR mobile games, Unity-based interactive installations, HD product rendering and marketing content — with work delivered for The Armoured Pug, Disney, Neo-Pangea and RHODDY. Recent credits include released builds like <em>Disney's Star Wars Resistance Racer</em> and MarineVerse's <em>VR Regatta</em>.</p>
+      <p class="lede" style="margin-top:1.2em">I love partnering with teams to build game-ready 3D assets, art direction, 3D prints and content that pair creativity with real production value — self-motivated, reliable, and always focused on delivering assets on time and with care. Lately I've been exploring GenAI and agentic-AI-assisted software, add-on and game-development scripting.</p>
+      <div class="stats-row">
+        <div class="stat"><b>AR/VR</b><span>MOBILE GAMES</span></div>
+        <div class="stat"><b>UNREAL→UNITY</b><span>INSTALLATIONS</span></div>
+        <div class="stat"><b>HD</b><span>PRODUCT RENDERS</span></div>
+        <div class="stat"><b>GENAI</b><span>EXPLORING NOW</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="reel" class="reelwrap wrap">
+    <p class="chap mono" data-r>CH.03 — HIGH SUN / SHOWREEL</p>
+    <h2 class="display h-xl" data-r style="--i:1">Selected work, in motion.</h2>
+    <div class="grid-reel">
+      <a class="reel-card r-3x2" href="https://www.youtube.com/watch?v=dTlvbTH9HMo" target="_blank" rel="noopener" data-yt="dTlvbTH9HMo" data-r>
+        <div class="thumb"><span class="play">▶</span><span class="tag mono tag-top">3D ENVIRONMENT</span></div>
+        <h3>Environment &amp; world building</h3><p class="wmeta mono">Voxel dioramas · procedural landscapes · lighting</p>
+      </a>
+      <a class="reel-card" href="https://www.youtube.com/watch?v=IZNlQcSK88A" target="_blank" rel="noopener" data-yt="IZNlQcSK88A" data-r style="--i:1">
+        <div class="thumb"><span class="play">▶</span><span class="tag mono tag-top">CLIENT RENDERS</span></div>
+        <h3>HD product &amp; client rendering</h3>
+      </a>
+      <a class="reel-card" href="https://www.youtube.com/watch?v=kwhDtNEKgYc" target="_blank" rel="noopener" data-yt="kwhDtNEKgYc" data-r style="--i:2">
+        <div class="thumb"><span class="play">▶</span><span class="tag mono tag-top">DIGITAL PAINTING</span></div>
+        <h3>Digital painting &amp; concept art</h3>
+      </a>
+      <a class="reel-card" href="https://www.youtube.com/watch?v=4RNu2MNoS4U" target="_blank" rel="noopener" data-yt="4RNu2MNoS4U" data-r style="--i:1">
+        <div class="thumb"><span class="play">▶</span><span class="tag mono tag-top">UNITY · ANIMATION</span></div>
+        <h3>Character animation — rig to performance</h3>
+      </a>
+      <a class="reel-card" href="https://www.youtube.com/watch?v=m9_GX4lhLFU" target="_blank" rel="noopener" data-yt="m9_GX4lhLFU" data-r style="--i:2">
+        <div class="thumb"><span class="play">▶</span><span class="tag mono tag-top">UNITY · ANIMATION</span></div>
+        <h3>Character animation — motion &amp; polish</h3>
+      </a>
+      <a class="reel-card" href="https://www.youtube.com/watch?v=dykKzNhgNuw" target="_blank" rel="noopener" data-yt="dykKzNhgNuw" data-r style="--i:1">
+        <div class="thumb"><span class="play">▶</span><span class="tag mono tag-top">UNITY · ASSETS</span></div>
+        <h3>Asset production &amp; game-ready pipelines</h3>
+      </a>
+      <a class="reel-card" href="https://www.youtube.com/watch?v=SM4xU67tbII" target="_blank" rel="noopener" data-yt="SM4xU67tbII" data-r style="--i:2">
+        <div class="thumb"><span class="play">▶</span><span class="tag mono tag-top">GENAI</span></div>
+        <h3>GenAI &amp; agentic-assisted development</h3>
+      </a>
+    </div>
+    <a class="reel-all" href="https://www.youtube.com/@paka3D/videos" target="_blank" rel="noopener" data-r style="--i:5">More on the channel → @paka3D ↗</a>
+  </section>
+
+  <section id="stack" class="stack wrap">
+    <p class="chap mono" data-r>CH.04 — GOLDEN HOUR / CAPABILITIES</p>
+    <h2 class="display h-xl" data-r style="--i:1">Two disciplines, one pipeline.</h2>
+    <div class="sblock panel" data-r style="--i:2"><h3>DIGITAL MEDIA DESIGN</h3><ul class="chips"><li>2D ILLUSTRATION</li><li>CONCEPT ART</li><li>NPR TEXTURE PAINTING</li><li>MOTION GRAPHICS</li><li>VFX</li><li>VIDEO EDITING</li><li>PRODUCT RENDERS</li></ul></div>
+    <div class="sblock panel" data-r style="--i:3"><h3>3D GENERALIST — TECHNICAL</h3><ul class="chips"><li>LOW-POLY / HARD SURFACE</li><li>MODULAR &amp; PROCEDURAL</li><li>CLEAN UVs · UDIMs</li><li>HIGH-POLY SCULPTING</li><li>3D PRINTING</li><li>MESH RETOPOLOGY &amp; OPTIMIZATION</li><li>TEXTURE BAKING / MATERIALS</li><li>RIGGING &amp; ANIMATION</li></ul></div>
+    <div class="sblock panel" data-r style="--i:4"><h3>UNITY GAME DEVELOPMENT</h3><ul class="chips"><li>ENVIRONMENT &amp; LIGHTING ART</li><li>PREFAB CREATION · LOD SYSTEMS</li><li>C# MECHANICS PROTOTYPING</li><li>MODULAR / PROCEDURAL WORLDS</li><li>PARTICLE · VFX · POST-FX</li><li>GIT / PLASTIC PIPELINES</li></ul></div>
+    <div class="sblock panel" data-r style="--i:5"><h3>TOOLS &amp; NOW EXPLORING</h3><ul class="chips"><li>BLENDER</li><li>ZBRUSH</li><li>KRITA</li><li>REBELLE 6</li><li>COREL PAINTER</li><li>DAVINCI RESOLVE</li><li>COMFYUI</li><li>MATERIAL MAKER · INSTAMAT</li><li>MIXAMO</li><li>C# / UNITY</li></ul></div>
+    <p class="stack-note" data-r style="--i:6">Right now I'm digging into GenAI and agentic-AI-assisted add-on &amp; game-dev scripting — the island you're scrolling through is a living proof-of-concept of that direction.</p>
+  </section>
+
+  <section id="process" class="stack wrap process-v">
+    <p class="chap mono" data-r style="--i:1">CH.05 — DUSK / HOW I WORK</p>
+    <div class="proc-row" data-step=".45"><span class="node"></span><div class="proc-box panel" data-r><span class="snum display">I.</span><h3>Concept &amp; light</h3><p>Every build starts as a time of day, not a model. I block out the sun first and let the landscape argue back — watch the sky behind you right now.</p></div></div>
+    <div class="proc-row" data-step=".62"><span class="node"></span><div class="proc-box panel" data-r style="--i:1"><span class="snum display">II.</span><h3>Massing &amp; optimization</h3><p>Silhouettes, then topology. Clean UVs, UDIMs, LODs — the hills you scrolled past were born this way and stay at sixty frames.</p></div></div>
+    <div class="proc-row" data-step=".78"><span class="node"></span><div class="proc-box panel" data-r style="--i:2"><span class="snum display">III.</span><h3>Life in the grid</h3><p>Trees, water, particles — systems that breathe. Nothing on this island is an asset I didn't make or script myself.</p></div></div>
+    <div class="proc-row" data-step=".92"><span class="node"></span><div class="proc-box panel" data-r style="--i:3"><span class="snum display">IV.</span><h3>Ship at dusk</h3><p>The last 10% is the whole job: budgets, depth of field as a feature and not an apology, and shipping before the light goes out. Dusk is deadline.</p></div></div>
+  </section>
+
+  <section id="contact" class="contact wrap">
+    <p class="chap mono" data-r>AFTER DARK</p>
+    <h2 class="display h-xl" data-r style="--i:1">Got a world to build?</h2>
+    <a class="email display" href="mailto:www.quantum3d@gmail.com" data-r style="--i:2">www.quantum3d@gmail.com</a>
+    <div class="socials" data-r style="--i:3">
+      <a href="https://www.youtube.com/@paka3D/videos" target="_blank" rel="noopener">YOUTUBE · @paka3D ↗</a>
+      <a href="https://www.linkedin.com/in/pascal-c-6790761a/" target="_blank" rel="noopener">LINKEDIN ↗</a>
+    </div>
+    <div class="statusrow" data-r style="--i:4">
+      <span class="pill"><span class="dot"></span>AVAILABLE — Q3 2025</span>
+      <span class="pill mono">LOCAL TIME · <b id="clock" style="color:var(--ink);font-weight:500">--:--:--</b></span>
+      <button class="btn-top mono" id="backTop" type="button">↑ BACK TO FIRST LIGHT</button>
+    </div>
+    <footer class="foot">
+      <span>© 2025 PASCAL CHAUMETTE — DIGITAL MEDIA ARTIST / UNITY DEV</span>
+      <span>BUILT WITH THREE.JS · ONE HEIGHTFIELD · <b id="trisFoot" style="color:var(--dim)">—</b> VOXELS</span>
+      <span>NO TEMPLATES WERE HARMED</span>
+    </footer>
+  </section>
+</main>
+
+<div id="fallback" hidden>
+  <div class="fb-card panel">
+    <span class="mono fb-kicker">// WEBGL STATUS</span>
+    <h2 class="display h-xl" id="fbTitle" style="font-size:clamp(1.6rem,4vw,2.6rem);margin-top:10px">Checking the 3D engine…</h2>
+    <p class="lede" id="fbBody">Booting the island renderer.</p>
+    <div class="fb-actions">
+      <button id="fbRetry" type="button" class="btn-top mono" style="margin:0">↻ RETRY 3D</button>
+      <a href="mailto:www.quantum3d@gmail.com" style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:var(--dim);text-decoration:none;border-bottom:1px solid transparent">or email me ↗</a>
+    </div>
+  </div>
+</div>
+
+<!-- ============ 3D ISLAND MODULE ============ -->
+<script type="module">
+import * as THREE from 'three';
+import { EffectComposer } from 'three/addons/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/addons/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/addons/postprocessing/UnrealBloomPass.js';
+import { BokehPass } from 'three/addons/postprocessing/BokehPass.js';
+import { ShaderPass } from 'three/addons/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/addons/postprocessing/OutputPass.js';
+
+if(window.__boot) window.__boot.ready = true;   // imports resolved → alive
+try{
+
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+const lerp=(a,b,t)=>a+(b-a)*t;
+const sstep=(a,b,x)=>{x=clamp((x-a)/(b-a),0,1);return x*x*(3-2*x)};
+const eob=r=>r<=0?0:1+2.70158*Math.pow(r-1,3)+1.70158*Math.pow(r-1,2);
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967295}}
+function makeNoise(seed){const h=(ix,iy)=>{let n=ix*374761393+iy*668265263+(seed|0)*974634;n=Math.imul(n^(n>>>13),1274126177);return((n^(n>>>16))>>>0)/4294967295};const fade=t=>t*t*(3-2*t);
+  function n2(x,y){const xi=Math.floor(x),yi=Math.floor(y),xf=x-xi,yf=y-yi,u=fade(xf),v=fade(yf);return lerp(lerp(h(xi,yi),h(xi+1,yi),u),lerp(h(xi,yi+1),h(xi+1,yi+1),u),v)}
+  function fbm(x,y){let a=.5,f=1,s=0,n=0;for(let i=0;i<4;i++){s+=a*n2(x*f,y*f);n+=a;a*=.5;f*=2.03}return s/n}
+  return {fbm}}
+
+const REDUCED = matchMedia('(prefers-reduced-motion: reduce)').matches;
+const MOBILE  = innerWidth < 761 || (navigator.maxTouchPoints>0 && innerWidth<1024);
+const $=id=>document.getElementById(id);
+const phaseEl=$('phaseLbl'), sunEl=$('sunRead'), progEl=$('progFill'), voxEl=$('voxCount'), fpsEl=$('fpsEl');
+const barTop=$('barTop'), barBot=$('barBot'), toastEl=$('toast');
+let toastT; function toast(msg){toastEl.textContent=msg;toastEl.classList.add('on');clearTimeout(toastT);toastT=setTimeout(()=>toastEl.classList.remove('on'),2300)}
+
+const canvas=$('scene');
+let renderer;
+try{ renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'high-performance'}); }
+catch(e){ throw new Error('WebGL is unavailable in this browser: '+(e.message||'no context')); }
+renderer.setPixelRatio(Math.min(devicePixelRatio, MOBILE?1.5:2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=1.18;
+renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+
+const scene=new THREE.Scene();
+scene.fog=new THREE.Fog(0xc89a86, 55, 340);
+const camera=new THREE.PerspectiveCamera(MOBILE?52:40, innerWidth/innerHeight, .5, 1500);
+
+const hemi=new THREE.HemisphereLight(0x93b2d6,0x56544a,.5); scene.add(hemi);
+const sun=new THREE.DirectionalLight(0xffdcae,1.1);
+sun.castShadow=true; sun.shadow.mapSize.setScalar(MOBILE?1024:2048);
+Object.assign(sun.shadow.camera,{left:-62,right:62,top:62,bottom:-62,near:30,far:320});
+sun.shadow.bias=-0.0002; sun.shadow.normalBias=.5; scene.add(sun,sun.target);
+
+const skyMat=new THREE.ShaderMaterial({side:THREE.BackSide,depthWrite:false,
+  uniforms:{uTop:{value:new THREE.Color('#31517e')},uHor:{value:new THREE.Color('#f79c74')},uGnd:{value:new THREE.Color('#d2a38e')},uSunDir:{value:new THREE.Vector3(0,1,0)},uSunCol:{value:new THREE.Color('#ffdcae')}},
+  vertexShader:`varying vec3 vW; void main(){vW=(modelMatrix*vec4(position,1.)).xyz; gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader:`varying vec3 vW; uniform vec3 uTop,uHor,uGnd,uSunDir,uSunCol;
+    void main(){ vec3 d=normalize(vW-cameraPosition); float h=d.y;
+      vec3 col=mix(uHor,uTop,pow(max(h,0.),.58)); col=mix(col,uGnd,smoothstep(0.,-.28,h));
+      float sd=max(dot(d,normalize(uSunDir)),0.);
+      col+=uSunCol*(pow(sd,900.)*3.4+pow(sd,150.)*.65+pow(sd,7.)*.16); gl_FragColor=vec4(col,1.);}`});
+const sky=new THREE.Mesh(new THREE.SphereGeometry(430,32,20),skyMat); scene.add(sky);
+
+function makeStars(n,size,tint){ const pos=new Float32Array(n*3); for(let i=0;i<n;i++){const a=Math.random()*Math.PI*2,e=Math.asin(Math.random()*.85+.1),r=400;pos[i*3]=Math.cos(a)*Math.cos(e)*r;pos[i*3+1]=Math.sin(e)*r;pos[i*3+2]=Math.sin(a)*Math.cos(e)*r}
+  const g=new THREE.BufferGeometry();g.setAttribute('position',new THREE.BufferAttribute(pos,3));
+  return new THREE.Points(g,new THREE.PointsMaterial({size,fog:false,transparent:true,opacity:0,color:tint,blending:THREE.AdditiveBlending,depthWrite:false}))}
+const starsA=makeStars(360,2.1,'#dfe8ff'), starsB=makeStars(240,1.4,'#ffe9c9'); scene.add(starsA,starsB);
+
+const cloudData=[]; const CLOUDS=MOBILE?5:7; { let cr=mulberry32(777); for(let c=0;c<CLOUDS;c++){
+  const cx=(cr()*2-1)*110,cy=26+cr()*14,cz=-95+cr()*70,spd=.25+cr()*.3,parts=[];const np=8+(cr()*8|0);
+  for(let i=0;i<np;i++)parts.push([(cr()*2-1)*7,(cr()*2-1)*1.6,(cr()*2-1)*4,2.5+cr()*2,.8+cr()*.5,1.6+cr()*1.6]);
+  cloudData.push({x:cx,y:cy,z:cz,s:spd,p:parts}); } }
+const cloudGeo=new THREE.BoxGeometry(1,1,1);
+const cloudMat=new THREE.MeshStandardMaterial({color:0xffffff,roughness:.95,transparent:true,opacity:.85});
+let clouds=null;
+
+const PN=MOBILE?140:260,pPos=new Float32Array(PN*3),pVel=[];
+for(let i=0;i<PN;i++){pPos[i*3]=(Math.random()*2-1)*28;pPos[i*3+1]=3+Math.random()*11;pPos[i*3+2]=(Math.random()*2-1)*28;pVel.push(.15+Math.random()*.3)}
+const pollenGeo=new THREE.BufferGeometry();pollenGeo.setAttribute('position',new THREE.BufferAttribute(pPos,3));
+const pollenMat=new THREE.PointsMaterial({size:.2,color:0xfff3d6,transparent:true,opacity:.4,depthWrite:false});
+scene.add(new THREE.Points(pollenGeo,pollenMat));
+
+const G=MOBILE?30:38, L={x:-6,z:0},LRX=15,LRZ=8.5, H={x:17,z:0},HR=6.5;
+let SEED=(Math.random()*0xffffffff)>>>0, WORLD=null;
+
+function buildWorld(seed){
+  const N=makeNoise(seed), R=mulberry32(seed^0x9e37);
+  function raw(x,z){ let h=-3+Math.pow(N.fbm(x*.052,z*.052),1.7)*14;
+    h+=3.2*Math.exp(-(((x+16)**2+(z-20)**2)/420)); const fall=sstep(1.18,.55,Math.hypot(x,z)/G); h=lerp(-4.2,h,fall);
+    const hd=Math.hypot(x-H.x,z-H.z)/HR; h=lerp(h,3,sstep(1.0,.35,hd));
+    const ex=(x-L.x)/LRX,ez=(z-L.z)/LRZ,e=ex*ex+ez*ez; if(e<1.6)h=lerp(h,-2.6,sstep(1.6,.3,e)*.97);
+    return Math.round(clamp(h,-4,12)); }
+  const top=(x,z)=>(Math.abs(x)>G||Math.abs(z)>G)?-3:raw(x,z);
+  const S=[]; let maxH=2;
+  function col(x,y,z,sx,sy,sz,c,t){S.push([x,y,z,sx,sy,sz,c.r,c.g,c.b,t])}
+  const j=(c,k)=>{const v=Math.max(0,1+(R()*2-1)*k);return c.clone().multiplyScalar(v)};
+
+  for(let x=-G;x<=G;x++)for(let z=-G;z<=G;z++){ const h=top(x,z); if(h<2)continue; maxH=Math.max(maxH,h);
+    let mn=99; [[1,0],[-1,0],[0,1],[0,-1]].forEach(d=>{mn=Math.min(mn,top(x+d[0],z+d[1]))});
+    const yStart=Math.max(Math.min(h,mn)+1,1);
+    for(let y=yStart;y<=h;y++){ const isTop=y===h; let c;
+      if(isTop) c = h>=11? j(new THREE.Color('#eef2f4'),.05):(y<1?j(new THREE.Color('#b9a678'),.1):j(new THREE.Color(R()<.5?'#5f9e46':'#7cb35a'),.09));
+      else c = h>=9&&y>h-2? j(new THREE.Color('#8d8d86'),.08):j(new THREE.Color('#8a5f3d'),.1);
+      if(!isTop&&y<1)c=c.lerp(new THREE.Color('#4c6b7e'),.5);
+      const dn=Math.hypot(x-L.x,z-L.z)/20; col(x,y,z,1,1,1,c,.03+((h-2)/(maxH-2||1))*.48+dn*.04+R()*.05); } }
+
+  function pine(cx,cz,t0){ const h=top(cx,cz),s=.9+R()*.7;
+    for(let k=0;k<3;k++)col(cx,h+1+k,cz,s,s,s,j(new THREE.Color('#6b4a30'),.1),t0+k*.006);
+    const layers=[[3,2],[4,2],[5,1],[6,0]];
+    for(const[dy,r]of layers)for(let dx=-r;dx<=r;dx++)for(let dz=-r;dz<=r;dz++){ if(Math.abs(dx)+Math.abs(dz)>r)continue;
+      col(cx+dx*s,h+1+dy,cz+dz*s,s,s,s,(R()<.5?new THREE.Color('#3f7d3a'):new THREE.Color('#58a052')).multiplyScalar(.92+R()*.16),t0+.028+(dy-3)*.004); } }
+  const TREE_N=MOBILE?26:46; let placed=0,guard=0;
+  while(placed<TREE_N&&guard<900){ guard++; const x=Math.round((R()*2-1)*(G-3)),z=Math.round((R()*2-1)*(G-3));
+    const h=top(x,z); if(h<2||h>9)continue; if(Math.max(Math.abs(top(x+1,z)-h),Math.abs(top(x,z+1)-h))>2)continue;
+    const ex=(x-L.x)/LRX,ez=(z-L.z)/LRZ;if(ex*ex+ez*ez<1.45)continue; if(Math.hypot(x-H.x,z-H.z)<8)continue;
+    pine(x,z,.15+(h-2)/(maxH-2||1)*.35+R()*.08); placed++; }
+
+  const y0=top(H.x,H.z)+1, tHouse=(lx,lz,k)=>clamp(.47+k*.02+(lx+lz)*.0016,.45,.6);
+  const cream=new THREE.Color('#e8dcc4'),stone=new THREE.Color('#b3a289'),wood=new THREE.Color('#6e5a48');
+  for(let lx=0;lx<8;lx++)for(let lz=0;lz<7;lz++){ for(let k=0;k<4;k++){ const isDoor=(lx===0&&lz>=3&&lz<=4&&(k===1||k===2));
+      col(14+lx,y0+k,-3+lz,1,1,1,j(k===0?stone:(isDoor?new THREE.Color('#5d4733'):cream),.05),tHouse(lx,lz,k)); } }
+  for(let lx=0;lx<8;lx++)for(let lz=0;lz<7;lz++)col(14+lx,y0+4,-3+lz,1,1,1,j(wood,.05),tHouse(lx,lz,4));
+  for(let lx=1;lx<=6;lx++){ for(let lz=1;lz<=5;lz++)col(14+lx,y0+5,-3+lz,1,1,1,j(new THREE.Color('#a3492f'),.08),tHouse(lx,lz,5));
+    for(let lz=2;lz<=4;lz++)col(14+lx,y0+6,-3+lz,1,1,1,j(new THREE.Color('#8d3c27'),.09),tHouse(lx,lz,6)) }
+  for(let k=4;k<=7;k++)col(19,y0+k,-1,.9,.9,.9,j(new THREE.Color('#7d8087'),.07),.5);
+  const LIGHTS=[]; [[14,y0+2,-3],[14,y0+2,3],[21,y0+2,-1],[21,y0+2,0]].forEach(p=>LIGHTS.push([p[0],p[1],p[2],.8,.9,.85]));
+  for(const dx of [12,10,8,6])for(const dz of [-1,-2])col(dx,2.4,dz,1.7,.26,1.9,j(new THREE.Color('#8a6a4a'),.1),.58);
+  for(const px of [7,11])for(const pz of [-2,0])col(px,.9,pz,.32,4.2,.32,j(new THREE.Color('#6e5238'),.1),.56);
+  col(5,3.6,-1,.24,2.4,.24,new THREE.Color('#4a3a2c'),.6); LIGHTS.push([5,5.05,-1,.55,.55,.55]);
+
+  for(let i=0;i<(MOBILE?30:64);i++){ const a=R()*Math.PI*2,rr=1+R()*.42;
+    const x=Math.round(L.x+Math.cos(a)*LRX*rr),z=Math.round(L.z+Math.sin(a)*LRZ*rr);
+    if(Math.abs(x)>G-1||Math.abs(z)>G-1)continue; const h=top(x,z); if(h<0||h>2)continue;
+    if(R()<.5){const n=2+(R()*3|0);for(let k=0;k<n;k++)col(x+(R()-.5),h+.8,h+(R()-.5),.16+R()*.1,1.1+R()*1.4,.16+R()*.1,j(R()<.7?new THREE.Color('#4a7d5f'):new THREE.Color('#b3a06a'),.12),clamp(.3+R()*.2,.25,.55));}
+    else col(x,h+.4,z,.5+R()*.5,.5+R()*.5,.5+R()*.5,j(new THREE.Color('#9aa0a4'),.1),clamp(.28+R()*.2,.25,.5)); }
+
+  function makeVox(specs){ const count=specs.length;
+    const m=new THREE.InstancedMesh(cloudGeo,new THREE.MeshStandardMaterial({roughness:.92}),count);
+    m.instanceMatrix.setUsage(THREE.DynamicDrawUsage);m.castShadow=m.receiveShadow=true;m.frustumCulled=false;
+    const a=m.instanceMatrix.array;a.fill(0);for(let i=0;i<count;i++)a[i*16+15]=1;
+    const c=new THREE.Color();for(let i=0;i<count;i++)m.setColorAt(i,c.setRGB(specs[i][6],specs[i][7],specs[i][8]));
+    m.instanceColor.needsUpdate=true;scene.add(m);return {mesh:m,data:specs,rPrev:new Float32Array(count)}; }
+  const vox=makeVox(S);
+
+  const lm=new THREE.InstancedMesh(cloudGeo,new THREE.MeshBasicMaterial({color:0x2f3a46}),LIGHTS.length);
+  {const a=lm.instanceMatrix.array;for(let i=0;i<LIGHTS.length;i++){const o=i*16,p=LIGHTS[i];a[o]=p[3]*.95;a[o+5]=p[4]*.95;a[o+10]=p[5]*.95;a[o+12]=p[0];a[o+13]=p[1];a[o+14]=p[2];a[o+15]=1;}}
+  lm.frustumCulled=false;scene.add(lm);const lightsMat=lm.material;
+
+  const RT=G+6,T=[];
+  for(let z=-RT;z<=RT;z++)for(let x=-RT;x<=RT;x++){ const d=Math.hypot(x,z);if(d>RT)continue;
+    const st=Math.hypot(x-L.x,z-L.z)<21?1:2;if(st===2&&((x+z)%2))continue;
+    const h=(Math.abs(x)<=G-.5&&Math.abs(z)<=G-.5)?top(x,z):-3;if(h>1)continue;
+    let b=.8+R()*.2;b*=1-clamp(d/RT,0,1)*.24;if(R()<.06)b=1.4;T.push([x,1.95,z,st*.92,R()*Math.PI*2,b]); }
+  const tm=new THREE.InstancedMesh(cloudGeo,new THREE.MeshStandardMaterial({color:0xffffff,roughness:.13}),T.length);
+  tm.instanceMatrix.setUsage(THREE.DynamicDrawUsage);tm.receiveShadow=true;tm.frustumCulled=false;
+  {const c=new THREE.Color();for(let i=0;i<T.length;i++)tm.setColorAt(i,c.setScalar(T[i][5]));tm.instanceColor.needsUpdate=true;}
+  scene.add(tm);
+
+  if(clouds)scene.remove(clouds);
+  const cn=cloudData.reduce((a,c)=>a+c.p.length,0);
+  clouds=new THREE.InstancedMesh(cloudGeo,cloudMat,cn);clouds.frustumCulled=false;scene.add(clouds);
+
+  return {top,S,vox,T,tiles:tm,lights:lm,lightsMat,maxH,houseLight:new THREE.Vector3(14.6,y0+2,-1),dockLight:new THREE.Vector3(5,5,-1)};
+}
+
+const plHouse=new THREE.PointLight(0xffb36b,0,22,1.8);scene.add(plHouse);
+const plDock=new THREE.PointLight(0xffc98a,0,14,1.8);scene.add(plDock);
+
+const UT_CAP=14*38;
+const utMesh=new THREE.InstancedMesh(cloudGeo,new THREE.MeshStandardMaterial({roughness:.9}),UT_CAP);
+utMesh.instanceMatrix.setUsage(THREE.DynamicDrawUsage);utMesh.castShadow=true;utMesh.frustumCulled=false;
+{const a=utMesh.instanceMatrix.array;a.fill(0);for(let i=0;i<UT_CAP;i++)a[i*16+15]=1;}
+scene.add(utMesh);
+let utCursor=0,plantCount=0;const utActive=[];
+
+function plantAt(x,z){ if(!WORLD)return;
+  const a=utMesh.instanceMatrix.array,c=new THREE.Color();
+  const i0=utCursor*38;utCursor=(utCursor+1)%14;let k=i0;
+  const s=.95+Math.random()*.6,h=WORLD.top(x,z),ys=[];
+  const put=(px,py,pz,hx)=>{const o=k*16;a[o]=s;a[o+5]=s;a[o+10]=s;a[o+12]=px;a[o+13]=py;a[o+14]=pz;a[o+15]=1;utMesh.setColorAt(k,c.set(hx).multiplyScalar(.92+Math.random()*.16));ys.push(py);k++};
+  for(let q=0;q<3;q++)put(x,h+1+q,z,'#6b4a30');
+  const LAY=[[3,2],[4,2],[5,1],[6,0]];
+  for(const[dy,r]of LAY)for(let dx=-r;dx<=r;dx++)for(let dz=-r;dz<=r;dz++){ if(Math.abs(dx)+Math.abs(dz)>r)continue;put(x+dx*s,h+1+dy,z+dz*s,Math.random()<.5?'#3f7d3a':'6aa84f'); }
+  utMesh.instanceColor.needsUpdate=true;
+  const rec={i0,count:k-i0,s,ys,t0:performance.now()};utActive.push(rec);if(utActive.length>16)utActive.shift();
+  toast('PINE #'+(plantCount+1)+' PLANTED'); }
+
+const composer=new EffectComposer(renderer);
+composer.addPass(new RenderPass(scene,camera));
+const bokeh=new BokehPass(scene,camera,{focus:40,aperture:.0018,maxblur:.0075});bokeh.enabled=!MOBILE;composer.addPass(bokeh);
+const bloom=new UnrealBloomPass(new THREE.Vector2(innerWidth,innerHeight),.3,.6,.8);composer.addPass(bloom);
+composer.addPass(new OutputPass());
+const grade={name:'Grade',uniforms:{tDiffuse:{value:null},uTime:{value:0},uAmp:{value:REDUCED?.015:.05},uVig:{value:.42},uCA:{value:MOBILE?0:.7},uRes:{value:new THREE.Vector2(innerWidth,innerHeight)}},
+  vertexShader:`varying vec2 vUv;void main(){vUv=uv;gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.);}`,
+  fragmentShader:`precision highp float;varying vec2 vUv;uniform sampler2D tDiffuse;uniform float uTime,uAmp,uVig,uCA;uniform vec2 uRes;
+    float hash(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+    void main(){vec2 d=vUv-.5;float r2=dot(d,d);float ca=uCA*.006*smoothstep(0.,.5,r2);
+      vec3 col;col.r=texture2D(tDiffuse,vUv+d*ca).r;col.g=texture2D(tDiffuse,vUv).g;col.b=texture2D(tDiffuse,vUv-d*ca).b;
+      col*=1.-uVig*smoothstep(.16,.75,length(d)*1.9);float n=hash(vUv*uRes+fract(uTime*.013)*vec2(137.,91.));gl_FragColor=vec4(col+(n-.5)*uAmp,1.);}`};
+const gradePass=new ShaderPass(grade);composer.addPass(gradePass);
+
+/* Time-of-day: [skyTop,horizon,fog,sunCol | sunI | hemiSky,hemiTint | hemiI,elev°,azim° | bloom,cloudOp,star,glow | water,accent] */
+const CK=[
+ {t:0.00,c:['#31517e','#f79c74','#d2a38e','#ffdcae',1.15,'#93b2d6','#56544a',.5,  4,102,.3,.85,0,0,'#47819f','#ffb489']},
+ {t:0.18,c:['#4c83bd','#ffe0b6','#e2d9c8','#fff3de',1.7 ,'#aecbe8','#6a755a',.72, 26,70,.2,1,0,0,'#45a0cf','#ffd166']},
+ {t:0.42,c:['#3e7fd0','#d8ecff','#ddebf4','#fffef4',2.15,'#cfe4f6','#7a8a68',.9,  58,34,.16,.9,0,0,'#3fa3d8','#ffd166']},
+ {t:0.66,c:['#4a72ad','#ffc98e','#e5c6a4','#ffe2b0',1.7 ,'#b9c4de','#6f7260',.66, 24,-8,.3,.7,0,.2,'#3d84bd','#ffb45e']},
+ {t:0.84,c:['#313a68','#ff9a6b','#c9a99a','#ffc08f',1.3 ,'#7d86b8','#55566a',.5,  12,-58,.6,.6,.25,.4,'#35629b','#ff8f6e']},
+ {t:1.00,c:['#2b3560','#ff9f72','#d8b4a0','#ffb884',1.1,'#6a7bb0','#4c4e58',.45, 7,-84,.55,.8,.35,.45,'#2e5a92','#ff9f6e']}
+];
+CK.forEach(k=>k.col=k.c.map(v=>typeof v==='string'?new THREE.Color(v):v));
+const envOut={};CK[0].col.forEach((v,i)=>envOut[v.isColor?('C'+i):('N'+i)]=v.isColor?new THREE.Color():0);
+function envAt(p,out){ let a=CK[0],b=CK[CK.length-1];
+  for(let i=0;i<CK.length-1;i++)if(p>=CK[i].t&&p<=CK[i+1].t){a=CK[i];b=CK[i+1];break}
+  const u=sstep(a.t,b.t,p);
+  for(let i=0;i<a.col.length;i++){const A=a.col[i],B=b.col[i];if(A.isColor)out['C'+i].copy(A).lerp(B,u);else out['N'+i]=lerp(A,B,u);} }
+
+/* Camera — held above the treeline */
+const CAMK=[{t:0.00,p:[6,20,54],l:[-6,3,-4]},{t:0.25,p:[-28,19,34],l:[-2,6,-2]},
+ {t:0.50,p:[26,26,34],l:[10,6,-2]},{t:0.75,p:[-16,19,24],l:[15,7,-1]},{t:1.00,p:[0,16,30],l:[15,8,-3]}];
+CAMK.forEach(k=>{k.p=new THREE.Vector3(...k.p);k.l=new THREE.Vector3(...k.l)});
+const camPos=new THREE.Vector3(),camLook=new THREE.Vector3(),focusPt=new THREE.Vector3();
+function evalCam(p){ let a=CAMK[0],b=CAMK[CAMK.length-1];
+  for(let i=0;i<CAMK.length-1;i++)if(p>=CAMK[i].t&&p<=CAMK[i+1].t){a=CAMK[i];b=CAMK[i+1];break}
+  const u=sstep(a.t,b.t,p);camPos.copy(a.p).lerp(b.p,u);camLook.copy(a.l).lerp(b.l,u);}
+
+function reseed(seed,announce){
+  if(WORLD){scene.remove(WORLD.vox.mesh,WORLD.tiles,clouds);WORLD.vox.mesh.material.dispose();if(WORLD.vox.mesh.instanceColor)WORLD.vox.mesh.instanceColor.dispose();WORLD.tiles.material.dispose();}
+  SEED=seed>>>0;WORLD=buildWorld(SEED);lastRevealP=-1;
+  plHouse.position.copy(WORLD.houseLight);plDock.position.copy(WORLD.dockLight);
+  const hx=(SEED.toString(16).toUpperCase()).padStart(8,'0').slice(-6);
+  document.querySelectorAll('#seedChip').forEach(e=>e.textContent='0x'+hx);
+  $('trisFoot').textContent=(WORLD.S.length+WORLD.T.length).toLocaleString();
+  if(announce)toast('NEW ISLAND · SEED 0x'+hx);}
+
+let p=0,sp=0,visibleTotal=0,lastRevealP=-1;
+function readScroll(){const m=document.documentElement.scrollHeight-innerHeight;p=m>0?clamp(scrollY/m,0,1):0}
+addEventListener('scroll',readScroll,{passive:true});
+const mouse={x:0,y:0,sx:0,sy:0};
+addEventListener('pointermove',e=>{mouse.x=e.clientX/innerWidth*2-1;mouse.y=e.clientY/innerHeight*2-1},{passive:true});
+
+const raycaster=new THREE.Raycaster();
+addEventListener('click',e=>{ if(e.target.closest('a,button,.reel-card,.panel,input,label'))return; if(!WORLD)return;
+  const v=new THREE.Vector2((e.clientX/innerWidth)*2-1,-(e.clientY/innerHeight)*2+1);raycaster.setFromCamera(v,camera);
+  let prevY=99,hit=null,water=false;
+  for(let t=4;t<280;t+=.4){const pt=raycaster.ray.origin.clone().addScaledVector(raycaster.ray.direction,t);
+    if(Math.abs(pt.x)>G||Math.abs(pt.z)>G)break;
+    const cx=Math.round(pt.x),cz=Math.round(pt.z),face=WORLD.top(cx,cz)+.5;
+    if(pt.y<=face&&prevY>face){hit=[cx,cz];break} if(!water&&pt.y<1.9)water=true; prevY=pt.y;}
+  if(hit){const h=WORLD.top(hit[0],hit[1]);if(h>=2&&h<=9&&Math.hypot(hit[0]-H.x,hit[1]-H.z)>7){plantAt(hit[0],hit[1]);plantCount++;}else toast('TOO ROCKY FOR A PINE');}
+  else if(water)toast('NO SOIL HERE — TRY THE HILLS'); });
+addEventListener('keydown',e=>{if((e.key==='r'||e.key==='R')&&!/INPUT|TEXTAREA/.test(e.target.tagName))reseed((Math.random()*0xffffffff)>>>0,true)});
+
+reseed(SEED,false);readScroll();
+
+const clock=new THREE.Clock();let fpsE=60,hudT=0,tier=0,tierCd=0,barLast=-1;
+const tmpC=new THREE.Color(),sunDirV=new THREE.Vector3(),camR=new THREE.Vector3(),camU=new THREE.Vector3();
+
+
+function frame(){
+  const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
+  sp+=(p-sp)*(REDUCED?1:Math.min(1,dt*4.2));if(Math.abs(p-sp)<.0004)sp=p;
+
+  envAt(sp,envOut);
+  skyMat.uniforms.uTop.value.copy(envOut.C0);skyMat.uniforms.uHor.value.copy(envOut.C1);
+  skyMat.uniforms.uGnd.value.copy(envOut.C2);skyMat.uniforms.uSunCol.value.copy(envOut.C3).multiplyScalar(1.6);
+  const el=envOut.N8*Math.PI/180,az=envOut.N9*Math.PI/180;
+  sunDirV.set(Math.cos(el)*Math.cos(az),Math.sin(el),Math.cos(el)*Math.sin(az));
+  skyMat.uniforms.uSunDir.value.copy(sunDirV);scene.fog.color.copy(envOut.C2);
+  sun.position.copy(sunDirV).multiplyScalar(130);sun.intensity=envOut.N4;tmpC.copy(envOut.C3);sun.color.copy(tmpC);
+  hemi.color.copy(envOut.C5);hemi.groundColor.copy(envOut.C6);hemi.intensity=envOut.N7;
+  bloom.strength=envOut.N10;
+  starsA.material.opacity=envOut.N12*(.72+.28*Math.sin(t*1.7));starsB.material.opacity=envOut.N12*(.65+.35*Math.sin(t*2.3+2));
+  const glow=envOut.N13;plHouse.intensity=glow*26;plDock.intensity=glow*9;
+  WORLD.lightsMat.color.set('#39434f').lerp(new THREE.Color('#ffd9a0'),glow).multiplyScalar(1+glow*2.2);
+  tmpC.copy(envOut.C14);WORLD.tiles.material.color.copy(tmpC);
+  cloudMat.opacity=envOut.N11;cloudMat.color.setRGB(1,1,1).lerp(envOut.C1,.45);
+
+  evalCam(sp);
+  if(!REDUCED&&!MOBILE){camR.setFromMatrixColumn(camera.matrixWorld,0);camU.setFromMatrixColumn(camera.matrixWorld,1);
+    mouse.sx+=(mouse.x-mouse.sx)*.05;mouse.sy+=(mouse.y-mouse.sy)*.05;camPos.addScaledVector(camR,mouse.sx*2.1).addScaledVector(camU,-mouse.sy*1.3);}
+  if(!REDUCED){camPos.x+=Math.sin(t*.31)*.4;camPos.y+=Math.sin(t*.23+1)*.25}
+  camera.position.copy(camPos);focusPt.copy(camLook);camera.lookAt(focusPt);
+  sky.position.copy(camera.position);starsA.position.copy(camera.position);starsB.position.copy(camera.position);
+
+  if(Math.abs(sp-lastRevealP)>1e-5||lastRevealP<0){ lastRevealP=sp;const V=WORLD.vox,arr=V.mesh.instanceMatrix.array,VD=REDUCED?.02:.13;let vis=0,dirty=false;
+    for(let i=0;i<V.data.length;i++){const b=V.data[i];const r=clamp((sp-b[9])/VD,0,1);
+      if(r!==V.rPrev[i]){dirty=true;V.rPrev[i]=r;const o=i*16,e=eob(r);arr[o]=b[3]*e;arr[o+5]=b[4]*e;arr[o+10]=b[5]*e;arr[o+12]=b[0];arr[o+13]=b[1]+(1-r)*-.4;arr[o+14]=b[2];}
+      if(r>.02)vis++;}
+    if(dirty)V.mesh.instanceMatrix.needsUpdate=true;visibleTotal=vis;}
+
+  {const T=WORLD.T,a=WORLD.tiles.instanceMatrix.array,VD=.13;let visT=0;
+   for(let i=0;i<T.length;i++){const d=T[i],o=i*16,r=clamp((sp-(.02+i*.0002))/VD,0,1),e=eob(r);
+    a[o]=d[3]*e;a[o+5]=.3*e;a[o+10]=d[3]*e;a[o+12]=d[0];a[o+14]=d[2];a[o+15]=1;
+    a[o+13]=(REDUCED?1.95:1.62+.33*Math.min(1,r)+Math.sin(t*1.25+d[4])*.05*Math.min(1,r));if(r>.2)visT++;}
+   WORLD.tiles.instanceMatrix.needsUpdate=true;visibleTotal+=visT;}
+
+  {const a=clouds.instanceMatrix.array;let k=0;
+   for(const c of cloudData){ if(!REDUCED){c.x+=c.s*dt;if(c.x>120)c.x=-120} const bob=Math.sin(t*.4+c.y)*.6;
+    for(const pp of c.p){const o=k*16;a[o]=pp[3];a[o+5]=pp[4];a[o+10]=pp[5];a[o+12]=c.x+pp[0];a[o+13]=c.y+bob+pp[1];a[o+14]=c.z+pp[2];a[o+15]=1;k++;}}
+   clouds.instanceMatrix.needsUpdate=true;}
+
+  {const a=pollenGeo.attributes.position.array;pollenMat.opacity=.35*(1-Math.max(0,sp-.8)*4)+.1*Math.sin(t*.7);
+   for(let i=0;i<PN;i++){a[i*3+1]+=pVel[i]*dt;if(a[i*3+1]>14)a[i*3+1]=3;a[i*3]+=Math.sin(t*.5+i)*.002}pollenGeo.attributes.position.needsUpdate=true;}
+
+  if(utActive.length){const a=utMesh.instanceMatrix.array,now=performance.now();let dirty=false;
+    for(const rec of utActive){if(now-rec.t0>1400)continue;dirty=true;
+      for(let j=0;j<rec.count;j++){const i=rec.i0+j,o=i*16,r=Math.min(1,(now-rec.t0-j*.012)/520),e=eob(r);a[o]=rec.s*e;a[o+5]=rec.s*e;a[o+10]=rec.s*e;a[o+13]=rec.ys[j]-(1-r)*.6;}}
+    if(dirty)utMesh.instanceMatrix.needsUpdate=true;}
+
+  if(bokeh.enabled){bokeh.uniforms['focus'].value=camera.position.distanceTo(focusPt);bokeh.uniforms['aperture'].value=.0012+.0016*sstep(.5,1,sp)}
+  const bar=REDUCED?0:sstep(.05,.14,sp)*(1-sstep(.9,.97,sp));
+  if(Math.abs(bar-barLast)>.002){barLast=bar;barTop.style.transform='scaleY('+bar+')';barBot.style.transform='scaleY('+bar+')'}
+
+  gradePass.uniforms.uTime.value=t;hudT+=dt;fpsE=lerp(fpsE,1/Math.max(dt,.001),.05);
+  if(hudT>.12){hudT=0;progEl.style.width=(sp*100).toFixed(1)+'%';
+    const ph=[[.985,'AFTER DARK'],[.84,'DUSK'],[.66,'GOLDEN HOUR'],[.42,'HIGH SUN'],[.2,'MORNING BUILD']].find(x=>sp<x[0])[1];phaseEl.textContent=ph;
+    sunEl.textContent='SUN '+(envOut.N8>=0?'+':'')+envOut.N8.toFixed(1)+'° · AZ '+Math.round(envOut.N9)+'°';
+    voxEl.textContent=(visibleTotal+plantCount*35).toLocaleString()+' VOXELS PLACED';fpsEl.textContent=Math.round(fpsE)+' FPS';
+    document.documentElement.style.setProperty('--accent',envOut.C15.getStyle());
+    document.querySelectorAll('.proc-row').forEach(s=>s.classList.toggle('passed',sp>=parseFloat(s.dataset.step)));}
+
+  tierCd-=dt;
+  if(t>7&&fpsE<32&&tier<2&&tierCd<=0){tier++;tierCd=5;
+    if(tier===1){bokeh.enabled=false;renderer.setPixelRatio(Math.min(devicePixelRatio,1.4));composer.setSize(innerWidth,innerHeight)}
+    else{renderer.setPixelRatio(1);bloom.radius=.3;sun.shadow.mapSize.setScalar(1024);if(sun.shadow.map){sun.shadow.map.dispose();sun.shadow.map=null}}}
+
+  composer.render();
+}
+
+let frameErr=0;
+renderer.setAnimationLoop(function(){ try{ frame(); }catch(err){ if(frameErr<3){frameErr++;console.error('[island] render error:',err);if(window.__showFallback)window.__showFallback('Render loop error: '+(err&&err.message||err),'err');} renderer.setAnimationLoop(null);} });
+
+addEventListener('resize',()=>{ camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth,innerHeight);composer.setSize(innerWidth,innerHeight);gradePass.uniforms.uRes.value.set(innerWidth,innerHeight);});
+
+window.__hideFallback && window.__hideFallback();
+console.log('%c[island] online · seed 0x'+SEED.toString(16).toUpperCase(),'color:#ffb489');
+
+}catch(err){
+  console.error('[island] init failed:',err);
+  if(window.__showFallback)window.__showFallback((err&&err.message)||String(err),'err');
+}
+</script>
+</body>
+</html>
