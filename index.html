@@ -153,65 +153,7 @@ footer.foot{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;b
 }}
 </script>
 
-<script>
-/* ============ BOOT / WATCHDOG — runs regardless of the 3D module ============ */
-(function(){
-  var B = window.__boot = { ready:false, error:null };
-  function record(m){ if(B.error||!m) return; B.error=String(m).slice(0,320); }
-  window.addEventListener('error',function(ev){
-    if(!B.ready && !B.error){
-      var m = ev.message || (ev.target&&ev.target.src?('failed to load '+ev.target.src):'');
-      record(m||'script error');
-    }
-  },true);
-  window.addEventListener('unhandledrejection',function(ev){
-    if(!B.ready && !B.error) record((ev.reason&&(ev.reason.message))||String(ev.reason));
-  });
 
-  var fbEl=document.getElementById('fallback'),
-      fbTitle=document.getElementById('fbTitle'),
-      fbBody=document.getElementById('fbBody');
-  function show(msg,kind){
-    if(!fbEl) return; document.body.classList.add('no3d');
-    if(kind==='wait'){
-      fbTitle.textContent='Loading the 3D island\u2026';
-      fbBody.innerHTML='Your connection seems slow \u2014 give it a few seconds. Everything below is fully readable in the meantime.';
-    }else{
-      fbTitle.textContent='The 3D island couldn\u2019t start.';
-      fbBody.innerHTML=(msg?('Reason: <span class="mono" style="color:var(--accent)">'+String(msg).replace(/</g,'&lt;')+'</span><br>'):'')+
-        'This portfolio renders its background live in WebGL. An ad\u2011blocker, an offline state, a browser without import\u2011map/WebGL support, or a blocked CDN may be the cause. You can still read and scroll everything below.';
-    }
-    fbEl.hidden=false;
-  }
-  function hide(){ if(fbEl) fbEl.hidden=true; document.body.classList.remove('no3d'); }
-  window.__showFallback=show; window.__hideFallback=hide;
-  var retry=document.getElementById('fbRetry'); if(retry) retry.addEventListener('click',function(){location.reload();});
-
-  setTimeout(function(){ if(!B.ready && !B.error){ show(null,'wait'); } },14000);
-  setTimeout(function(){ if(!B.ready){ show(B.error||'Could not reach the 3D engine CDN.','err'); } },30000);
-
-  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.18});
-  document.querySelectorAll('[data-r]').forEach(function(el){io.observe(el);});
-
-  var bt=document.getElementById('backTop'); if(bt) bt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
-  setInterval(function(){try{document.getElementById('clock').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());}catch(e){document.getElementById('clock').textContent=new Date().toTimeString().slice(0,8);}},1000);
-
-  var canHover=matchMedia('(hover:hover) and (pointer:fine)').matches;
-  document.querySelectorAll('.reel-card').forEach(function(card){
-    var id=card.getAttribute('data-yt'), thumb=card.querySelector('.thumb'); if(!id||!thumb)return;
-    thumb.style.backgroundImage='url(https://i.ytimg.com/vi/'+id+'/hqdefault.jpg)';
-    if(canHover){
-      card.addEventListener('pointerenter',function(){ var f=card.querySelector('.vid');
-        if(!f){ f=document.createElement('iframe'); f.className='vid';
-          f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&mute=1&controls=0&rel=0&playsinline=1';
-          f.setAttribute('allow','autoplay; encrypted-media'); thumb.appendChild(f); }
-        requestAnimationFrame(function(){ if(f) f.style.opacity=1; });
-      });
-      card.addEventListener('pointerleave',function(){ var f=card.querySelector('.vid'); if(f) f.remove(); });
-    }
-  });
-})();
-</script>
 </head>
 <body>
 
@@ -567,6 +509,8 @@ function envAt(p,out){ let a=CK[0],b=CK[CK.length-1];
   for(let i=0;i<CK.length-1;i++)if(p>=CK[i].t&&p<=CK[i+1].t){a=CK[i];b=CK[i+1];break}
   const u=sstep(a.t,b.t,p);
   for(let i=0;i<a.col.length;i++){const A=a.col[i],B=b.col[i];if(A.isColor)out['C'+i].copy(A).lerp(B,u);else out['N'+i]=lerp(A,B,u);} }
+  function phaseFor(s){ if(s<.20)return 'FIRST LIGHT'; if(s<.45)return 'MORNING BUILD'; if(s<.70)return 'GOLDEN HOUR'; if(s<.90)return 'DUSK'; return 'AFTER DARK'; }
+
 
 /* Camera — held above the treeline */
 const CAMK=[{t:0.00,p:[6,20,54],l:[-6,3,-4]},{t:0.25,p:[-28,19,34],l:[-2,6,-2]},
@@ -667,7 +611,7 @@ function frame(){
 
   gradePass.uniforms.uTime.value=t;hudT+=dt;fpsE=lerp(fpsE,1/Math.max(dt,.001),.05);
   if(hudT>.12){hudT=0;progEl.style.width=(sp*100).toFixed(1)+'%';
-    const ph=[[.985,'AFTER DARK'],[.84,'DUSK'],[.66,'GOLDEN HOUR'],[.42,'HIGH SUN'],[.2,'MORNING BUILD']].find(x=>sp<x[0])[1];phaseEl.textContent=ph;
+    phaseEl.textContent=phaseFor(sp);
     sunEl.textContent='SUN '+(envOut.N8>=0?'+':'')+envOut.N8.toFixed(1)+'° · AZ '+Math.round(envOut.N9)+'°';
     voxEl.textContent=(visibleTotal+plantCount*35).toLocaleString()+' VOXELS PLACED';fpsEl.textContent=Math.round(fpsE)+' FPS';
     document.documentElement.style.setProperty('--accent',envOut.C15.getStyle());
@@ -694,6 +638,65 @@ console.log('%c[island] online · seed 0x'+SEED.toString(16).toUpperCase(),'colo
   console.error('[island] init failed:',err);
   if(window.__showFallback)window.__showFallback((err&&err.message)||String(err),'err');
 }
+</script>
+<script>
+/* ============ BOOT / WATCHDOG — runs regardless of the 3D module ============ */
+(function(){
+  var B = window.__boot = { ready:false, error:null };
+  function record(m){ if(B.error||!m) return; B.error=String(m).slice(0,320); }
+  window.addEventListener('error',function(ev){
+    if(!B.ready && !B.error){
+      var m = ev.message || (ev.target&&ev.target.src?('failed to load '+ev.target.src):'');
+      record(m||'script error');
+    }
+  },true);
+  window.addEventListener('unhandledrejection',function(ev){
+    if(!B.ready && !B.error) record((ev.reason&&(ev.reason.message))||String(ev.reason));
+  });
+
+  var fbEl=document.getElementById('fallback'),
+      fbTitle=document.getElementById('fbTitle'),
+      fbBody=document.getElementById('fbBody');
+  function show(msg,kind){
+    if(!fbEl) return; document.body.classList.add('no3d');
+    if(kind==='wait'){
+      fbTitle.textContent='Loading the 3D island\u2026';
+      fbBody.innerHTML='Your connection seems slow \u2014 give it a few seconds. Everything below is fully readable in the meantime.';
+    }else{
+      fbTitle.textContent='The 3D island couldn\u2019t start.';
+      fbBody.innerHTML=(msg?('Reason: <span class="mono" style="color:var(--accent)">'+String(msg).replace(/</g,'&lt;')+'</span><br>'):'')+
+        'This portfolio renders its background live in WebGL. An ad\u2011blocker, an offline state, a browser without import\u2011map/WebGL support, or a blocked CDN may be the cause. You can still read and scroll everything below.';
+    }
+    fbEl.hidden=false;
+  }
+  function hide(){ if(fbEl) fbEl.hidden=true; document.body.classList.remove('no3d'); }
+  window.__showFallback=show; window.__hideFallback=hide;
+  var retry=document.getElementById('fbRetry'); if(retry) retry.addEventListener('click',function(){location.reload();});
+
+  setTimeout(function(){ if(!B.ready && !B.error){ show(null,'wait'); } },14000);
+  setTimeout(function(){ if(!B.ready){ show(B.error||'Could not reach the 3D engine CDN.','err'); } },30000);
+
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.18});
+  document.querySelectorAll('[data-r]').forEach(function(el){io.observe(el);});
+
+  var bt=document.getElementById('backTop'); if(bt) bt.addEventListener('click',function(){window.scrollTo({top:0,behavior:'smooth'});});
+  setInterval(function(){try{document.getElementById('clock').textContent=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',hour12:false,hour:'2-digit',minute:'2-digit',second:'2-digit'}).format(new Date());}catch(e){document.getElementById('clock').textContent=new Date().toTimeString().slice(0,8);}},1000);
+
+  var canHover=matchMedia('(hover:hover) and (pointer:fine)').matches;
+  document.querySelectorAll('.reel-card').forEach(function(card){
+    var id=card.getAttribute('data-yt'), thumb=card.querySelector('.thumb'); if(!id||!thumb)return;
+    thumb.style.backgroundImage='url(https://i.ytimg.com/vi/'+id+'/hqdefault.jpg)';
+    if(canHover){
+      card.addEventListener('pointerenter',function(){ var f=card.querySelector('.vid');
+        if(!f){ f=document.createElement('iframe'); f.className='vid';
+          f.src='https://www.youtube-nocookie.com/embed/'+id+'?autoplay=1&mute=1&controls=0&rel=0&playsinline=1';
+          f.setAttribute('allow','autoplay; encrypted-media'); thumb.appendChild(f); }
+        requestAnimationFrame(function(){ if(f) f.style.opacity=1; });
+      });
+      card.addEventListener('pointerleave',function(){ var f=card.querySelector('.vid'); if(f) f.remove(); });
+    }
+  });
+})();
 </script>
 </body>
 </html>
