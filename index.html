@@ -144,6 +144,12 @@ footer.foot{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;b
 
 @media (max-width:759px){.reel-card,.r-3x2{grid-column:auto!important;grid-row:auto!important}.r-3x2 .thumb{aspect-ratio:16/9;flex:none}}
 @media (max-width:760px){.nav a:not(.chip){display:none}.hero-side,.plant-hint{display:none}.proc-row{grid-template-columns:34px 1fr}.node{position:static;margin:14px 0 0;justify-self:start}.hud-b .stats span:last-child{display:none}}
+.hero-inner{max-width:1240px;margin:0;padding:0 clamp(20px,5vw,64px);display:flex;flex-direction:column}
+.seed-row{display:flex;gap:14px;align-items:center;margin-top:24px;flex-wrap:wrap}
+.seed-note{font-size:9.5px;letter-spacing:.2em;color:var(--dim)}
+.tools{margin-top:16px;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.14em;color:var(--dim);line-height:1.8}
+.note{margin-top:12px;font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--accent);opacity:.9}
+
 </style>
 
 <script type="importmap">
@@ -183,32 +189,36 @@ footer.foot{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;b
 <div id="toast" role="status"></div>
 
 <main id="main">
-  <section class="hero wrap" aria-label="Introduction">
+  <section class="hero" aria-label="Introduction">
+  <div class="hero-inner">
     <p class="kicker mono" data-r>DIGITAL MEDIA ARTIST · 3D GENERALIST · UNITY DEVELOPER</p>
     <h1 class="display h-giant" data-r style="--i:1">PASCAL<br><span class="l2 outline">CHAUMETTE</span></h1>
-    <div class="hero-side mono">PORTFOLIO · VOL. 04 — THE ISLAND EDITION</div>
-    <div class="hero-meta" data-r style="--i:2">
+    <div class="seed-row" data-r style="--i:2">
       <div class="seedchip">ISLAND SEED <b id="seedChip">0x······</b></div>
-      <div class="mono" style="font-size:10px;letter-spacing:.2em;color:var(--dim)">RE-SEEDED ON EVERY VISIT</div>
+      <span class="mono seed-note">RE-SEEDED EVERY VISIT · CLICK TERRAIN TO PLANT A PINE · [R] RESEEDS</span>
     </div>
-    <div class="cue mono"><span class="line"></span>SCROLL — THE WORLD BUILDS ITSELF</div>
-    <div class="plant-hint">▲ THIS LAND IS PROCEDURAL. NO TWO LOADS ARE ALIKE.</div>
-  </section>
+  </div>
+  <div class="hero-side mono">PORTFOLIO · VOL. 04 — THE ISLAND EDITION</div>
+  <div class="cue mono"><span class="line"></span>SCROLL — THE WORLD BUILDS ITSELF</div>
+</section>
 
-  <section id="about" class="about wrap">
-    <p class="chap mono" data-r>CH.02 — THE MORNING BUILD</p>
-    <div class="panel" data-r style="--i:1;max-width:840px;margin-top:3vh">
-      <h2 class="display h-xl">Creativity, shipped on schedule.</h2>
-      <p class="lede">I'm a Digital Media Artist and 3D Generalist working across AR/VR mobile games, Unity-based interactive installations, HD product rendering and marketing content — with work delivered for The Armoured Pug, Disney, Neo-Pangea and RHODDY. Recent credits include released builds like <em>Disney's Star Wars Resistance Racer</em> and MarineVerse's <em>VR Regatta</em>.</p>
-      <p class="lede" style="margin-top:1.2em">I love partnering with teams to build game-ready 3D assets, art direction, 3D prints and content that pair creativity with real production value — self-motivated, reliable, and always focused on delivering assets on time and with care. Lately I've been exploring GenAI and agentic-AI-assisted software, add-on and game-development scripting.</p>
-      <div class="stats-row">
-        <div class="stat"><b>AR/VR</b><span>MOBILE GAMES</span></div>
-        <div class="stat"><b>UNREAL→UNITY</b><span>INSTALLATIONS</span></div>
-        <div class="stat"><b>HD</b><span>PRODUCT RENDERS</span></div>
-        <div class="stat"><b>GENAI</b><span>EXPLORING NOW</span></div>
-      </div>
+
+<section id="about" class="about wrap">
+  <p class="chap mono" data-r>CH.02 — THE MORNING BUILD</p>
+  <div class="panel" data-r style="--i:1;max-width:940px;margin-top:3vh">
+    <h2 class="display h-xl">Creativity, shipped on schedule.</h2>
+    <p class="lede">Experience spans AR/VR mobile games, WebGL, Three.js and SparkAR — plus Unity-based interactive installations, HD product rendering and marketing content creation. Work delivered for The Armoured Pug, Disney, Neo-Pangea and RHODDY, with contributions to released titles like <em>Disney's Star Wars Resistance Racer</em> and MarineVerse's <em>VR Regatta</em>.</p>
+    <p class="lede" style="margin-top:1.2em">I enjoy collaborating with teams to develop game-ready 3D assets, game art, 3D prints and content that combine creativity with solid production values — always focused on delivering art assets and deliverables on time and with care.</p>
+    <p class="lede" style="margin-top:1.2em">Self-motivated, and increasingly assisted by a private, local Ollama-based A.I stack (Hugging Face OS models) — so client IP never leaves my hardware.</p>
+    <div class="stats-row">
+      <div class="stat"><b>AR / VR</b><span>MOBILE GAMES</span></div>
+      <div class="stat"><b>WEBGL · THREE.JS</b><span>REAL-TIME</span></div>
+      <div class="stat"><b>SPARK AR</b><span>AUGMENTED REALITY</span></div>
+      <div class="stat"><b>HD RENDERS</b><span>PRODUCT · MARKETING</span></div>
     </div>
-  </section>
+  </div>
+</section>
+
 
   <section id="reel" class="reelwrap wrap">
     <p class="chap mono" data-r>CH.03 — HIGH SUN / SHOWREEL</p>
@@ -246,43 +256,56 @@ footer.foot{display:flex;justify-content:space-between;gap:18px;flex-wrap:wrap;b
     <a class="reel-all" href="https://www.youtube.com/@paka3D/videos" target="_blank" rel="noopener" data-r style="--i:5">More on the channel → @paka3D ↗</a>
   </section>
 
-  <section id="stack" class="stack wrap">
-    <p class="chap mono" data-r>CH.04 — GOLDEN HOUR / CAPABILITIES</p>
-    <h2 class="display h-xl" data-r style="--i:1">Two disciplines, one pipeline.</h2>
-    <div class="sblock panel" data-r style="--i:2"><h3>DIGITAL MEDIA DESIGN</h3><ul class="chips"><li>2D ILLUSTRATION</li><li>CONCEPT ART</li><li>NPR TEXTURE PAINTING</li><li>MOTION GRAPHICS</li><li>VFX</li><li>VIDEO EDITING</li><li>PRODUCT RENDERS</li></ul></div>
-    <div class="sblock panel" data-r style="--i:3"><h3>3D GENERALIST — TECHNICAL</h3><ul class="chips"><li>LOW-POLY / HARD SURFACE</li><li>MODULAR &amp; PROCEDURAL</li><li>CLEAN UVs · UDIMs</li><li>HIGH-POLY SCULPTING</li><li>3D PRINTING</li><li>MESH RETOPOLOGY &amp; OPTIMIZATION</li><li>TEXTURE BAKING / MATERIALS</li><li>RIGGING &amp; ANIMATION</li></ul></div>
-    <div class="sblock panel" data-r style="--i:4"><h3>UNITY GAME DEVELOPMENT</h3><ul class="chips"><li>ENVIRONMENT &amp; LIGHTING ART</li><li>PREFAB CREATION · LOD SYSTEMS</li><li>C# MECHANICS PROTOTYPING</li><li>MODULAR / PROCEDURAL WORLDS</li><li>PARTICLE · VFX · POST-FX</li><li>GIT / PLASTIC PIPELINES</li></ul></div>
-    <div class="sblock panel" data-r style="--i:5"><h3>TOOLS &amp; NOW EXPLORING</h3><ul class="chips"><li>BLENDER</li><li>ZBRUSH</li><li>KRITA</li><li>REBELLE 6</li><li>COREL PAINTER</li><li>DAVINCI RESOLVE</li><li>COMFYUI</li><li>MATERIAL MAKER · INSTAMAT</li><li>MIXAMO</li><li>C# / UNITY</li></ul></div>
-    <p class="stack-note" data-r style="--i:6">Right now I'm digging into GenAI and agentic-AI-assisted add-on &amp; game-dev scripting — the island you're scrolling through is a living proof-of-concept of that direction.</p>
-  </section>
+<section id="stack" class="stack wrap">
+  <p class="chap mono" data-r>CH.04 — GOLDEN HOUR / CAPABILITIES</p>
+  <h2 class="display h-xl" data-r style="--i:1">Two disciplines, one pipeline.</h2>
 
-  <section id="process" class="stack wrap process-v">
-    <p class="chap mono" data-r style="--i:1">CH.05 — DUSK / HOW I WORK</p>
-    <div class="proc-row" data-step=".45"><span class="node"></span><div class="proc-box panel" data-r><span class="snum display">I.</span><h3>Concept &amp; light</h3><p>Every build starts as a time of day, not a model. I block out the sun first and let the landscape argue back — watch the sky behind you right now.</p></div></div>
-    <div class="proc-row" data-step=".62"><span class="node"></span><div class="proc-box panel" data-r style="--i:1"><span class="snum display">II.</span><h3>Massing &amp; optimization</h3><p>Silhouettes, then topology. Clean UVs, UDIMs, LODs — the hills you scrolled past were born this way and stay at sixty frames.</p></div></div>
-    <div class="proc-row" data-step=".78"><span class="node"></span><div class="proc-box panel" data-r style="--i:2"><span class="snum display">III.</span><h3>Life in the grid</h3><p>Trees, water, particles — systems that breathe. Nothing on this island is an asset I didn't make or script myself.</p></div></div>
-    <div class="proc-row" data-step=".92"><span class="node"></span><div class="proc-box panel" data-r style="--i:3"><span class="snum display">IV.</span><h3>Ship at dusk</h3><p>The last 10% is the whole job: budgets, depth of field as a feature and not an apology, and shipping before the light goes out. Dusk is deadline.</p></div></div>
-  </section>
+  <div class="sblock panel" data-r style="--i:2"><h3>TRADITIONAL DIGITAL MEDIA DESIGN</h3>
+    <ul class="chips"><li>2D Digital Illustration</li><li>Concept Art</li><li>NPR Texture Painting</li></ul>
+    <p class="tools">Krita · Rebelle 6 · Corel Painter</p>
+  </div>
 
-  <section id="contact" class="contact wrap">
-    <p class="chap mono" data-r>AFTER DARK</p>
-    <h2 class="display h-xl" data-r style="--i:1">Got a world to build?</h2>
-    <a class="email display" href="mailto:www.quantum3d@gmail.com" data-r style="--i:2">www.quantum3d@gmail.com</a>
-    <div class="socials" data-r style="--i:3">
-      <a href="https://www.youtube.com/@paka3D/videos" target="_blank" rel="noopener">YOUTUBE · @paka3D ↗</a>
-      <a href="https://www.linkedin.com/in/pascal-c-6790761a/" target="_blank" rel="noopener">LINKEDIN ↗</a>
-    </div>
-    <div class="statusrow" data-r style="--i:4">
-      <span class="pill"><span class="dot"></span>AVAILABLE — Q3 2025</span>
-      <span class="pill mono">LOCAL TIME · <b id="clock" style="color:var(--ink);font-weight:500">--:--:--</b></span>
-      <button class="btn-top mono" id="backTop" type="button">↑ BACK TO FIRST LIGHT</button>
-    </div>
-    <footer class="foot">
-      <span>© 2025 PASCAL CHAUMETTE — DIGITAL MEDIA ARTIST / UNITY DEV</span>
-      <span>BUILT WITH THREE.JS · ONE HEIGHTFIELD · <b id="trisFoot" style="color:var(--dim)">—</b> VOXELS</span>
-      <span>NO TEMPLATES WERE HARMED</span>
-    </footer>
-  </section>
+  <div class="sblock panel" data-r style="--i:2"><h3>CONTENT CREATION</h3>
+    <ul class="chips"><li>Video Editing</li><li>Motion Graphics</li><li>VFX</li><li>Product Renders</li></ul>
+    <p class="tools">Davinci Resolve · ComfyUI · Blender</p>
+  </div>
+
+  <div class="sblock panel" data-r style="--i:3"><h3>3D GENERALIST — TECHNICAL SKILL SET</h3>
+    <ul class="chips">
+      <li>Low Poly Modeling</li><li>Hard Surface</li><li>Modular &amp; Procedural Workflows</li><li>Efficient UVs / UDIMs</li>
+      <li>High Poly Sculpting</li><li>3D Printing</li><li>Mesh Retopology, Cleanup &amp; Optimization</li>
+      <li>Texture Baking / Material Authoring</li><li>Rigging &amp; Character Animation Fundamentals</li><li>Custom Technical Add-ons &amp; Modifiers (Python)</li>
+    </ul>
+    <p class="tools">Blender · ZBrush · Mixamo · Material Maker · InstaMAT · Python</p>
+    <p class="note">↳ add-ons &amp; modifiers assisted with a private local A.I stack / Ollama</p>
+  </div>
+
+  <div class="sblock panel" data-r style="--i:4"><h3>UNITY GAME DEVELOPMENT</h3>
+    <ul class="chips">
+      <li>Environment &amp; Lighting Artist</li><li>Particle Systems / VFX / PostFX</li>
+      <li>Prefab Creation · LOD Systems</li><li>Modular &amp; Procedural World Building</li>
+      <li>Game Mechanics Prototyping (C#)</li><li>Version-Controlled Pipelines</li>
+    </ul>
+    <p class="tools">Unity · C# · Git / Plastic</p>
+    <p class="note">↳ mechanics &amp; add-ons assisted with a private local A.I stack / Ollama</p>
+  </div>
+
+  <p class="stack-note" data-r style="--i:5">Every tool above is in active production use — and increasingly accelerated by a private, local open-source A.I stack (Ollama / Hugging Face OS models) so client IP stays on my hardware.</p>
+</section>
+
+
+<section id="process" class="stack wrap process-v">
+  <p class="chap mono" data-r style="--i:1">CH.05 — DUSK / THE DRIVE BEHIND IT</p>
+
+  <div class="proc-row" data-step=".45"><span class="node"></span><div class="proc-box panel" data-r><span class="snum display">I.</span><h3>Inspired by the old school</h3><p>My creative drive comes from the media and interactive software of decades ago — the games, demos and tools that made me want to build. Modern technology finally lets me explore and expand those ideas in rapid, scalable, deployable ways: straight from a spark on a page into something you can run.</p></div></div>
+
+  <div class="proc-row" data-step=".62"><span class="node"></span><div class="proc-box panel" data-r style="--i:1"><span class="snum display">II.</span><h3>From idea to game-ready asset</h3><p>I visualize and conceptualize ideas directly into 3D, game-ready assets — or partner with art directors to shape and deliver them. I organize and ship clean Unity asset packages that plug straight into a pipeline on day one.</p></div></div>
+
+  <div class="proc-row" data-step=".78"><span class="node"></span><div class="proc-box panel" data-r style="--i:2"><span class="snum display">III.</span><h3>Tools that build worlds — privately</h3><p>I also write the add-ons and scripting behind modular level design and world building, assisted by my own private, local open-source A.I stack (Ollama). I don't trust "the Bros" — I run local models like Qwen 3.8 27B. Slower, yes; but no outages, no token limits, and everything stays private for clients whose IP is under NDA.</p></div></div>
+
+  <div class="proc-row" data-step=".92"><span class="node"></span><div class="proc-box panel" data-r style="--i:3"><span class="snum display">IV.</span><h3>The art department, without the cost</h3><p>A traditional 3D artist since the 90s and a self-taught C#/Unity developer, I can articulate the steps of complex systems in ways only a seasoned 3D artist can — while framing them so the models interpret them correctly. The result: working add-ons, scripts, Blender modifiers, tools, Unity mechanics… just about anything. A creative powerhouse waiting for a small team that wants to build a game and needs an art department — without the cost.</p></div></div>
+</section>
+
 </main>
 
 <div id="fallback" hidden>
