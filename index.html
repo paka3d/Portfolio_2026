@@ -382,7 +382,7 @@ try{ renderer=new THREE.WebGLRenderer({canvas,antialias:true,powerPreference:'hi
 catch(e){ throw new Error('WebGL is unavailable in this browser: '+(e.message||'no context')); }
 renderer.setPixelRatio(Math.min(devicePixelRatio, MOBILE?1.5:2));
 renderer.setSize(innerWidth,innerHeight);
-renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=0.15;
+renderer.toneMapping=THREE.ACESFilmicToneMapping; renderer.toneMappingExposure=0.75;
 renderer.shadowMap.enabled=true; renderer.shadowMap.type=THREE.PCFSoftShadowMap;
 
 const scene=new THREE.Scene();
