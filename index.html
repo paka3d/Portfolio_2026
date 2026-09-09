@@ -550,7 +550,8 @@ function reseed(seed,announce){
   plHouse.position.copy(WORLD.houseLight);plDock.position.copy(WORLD.dockLight);
   const hx=(SEED.toString(16).toUpperCase()).padStart(8,'0').slice(-6);
   document.querySelectorAll('#seedChip').forEach(e=>e.textContent='0x'+hx);
-  $('trisFoot').textContent=(WORLD.S.length+WORLD.T.length).toLocaleString();
+   const tf=$('trisFoot'); if(tf)tf.textContent=(WORLD.S.length+WORLD.T.length).toLocaleString();
+
   if(announce)toast('NEW ISLAND · SEED 0x'+hx);}
 
 let p=0,sp=0,visibleTotal=0,lastRevealP=-1;
@@ -630,10 +631,12 @@ function frame(){
 
   if(bokeh.enabled){bokeh.uniforms['focus'].value=camera.position.distanceTo(focusPt);bokeh.uniforms['aperture'].value=.0012+.0016*sstep(.5,1,sp)}
   const bar=REDUCED?0:sstep(.05,.14,sp)*(1-sstep(.9,.97,sp));
-  if(Math.abs(bar-barLast)>.002){barLast=bar;barTop.style.transform='scaleY('+bar+')';barBot.style.transform='scaleY('+bar+')'}
+    if(Math.abs(bar-barLast)>.002 && barTop&&barBot){barLast=bar;barTop.style.transform='scaleY('+bar+')';barBot.style.transform='scaleY('+bar+')'}
+
 
   gradePass.uniforms.uTime.value=t;hudT+=dt;fpsE=lerp(fpsE,1/Math.max(dt,.001),.05);
-  if(hudT>.12){hudT=0;progEl.style.width=(sp*100).toFixed(1)+'%';
+    if(hudT>.12 && phaseEl&&sunEl&&voxEl&&fpsEl&&progEl){hudT=0;progEl.style.width=(sp*100).toFixed(1)+'%';
+
     phaseEl.textContent=phaseFor(sp);
     sunEl.textContent='SUN '+(envOut.N8>=0?'+':'')+envOut.N8.toFixed(1)+'° · AZ '+Math.round(envOut.N9)+'°';
     voxEl.textContent=(visibleTotal+plantCount*35).toLocaleString()+' VOXELS PLACED';fpsEl.textContent=Math.round(fpsE)+' FPS';
